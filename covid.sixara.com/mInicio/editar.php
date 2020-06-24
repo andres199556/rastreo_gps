@@ -1,11 +1,14 @@
 <?php
 include "../conexion/conexion.php";
-$menu  ="mInicio"; /* esto es provisional, ya que mediante la función get_name_module.php se extra
-el nombre del módulo actual para verificar si el usuario tiene permiso de acceso */
+$menu  ="mInicio";
 /* include "../funciones/get_name_module.php"; */
 include "../sesion/validar_sesion.php";
 include "../sesion/validar_permiso.php";
 include "../funciones/dates.php";
+$datos = $conexion->prepare("SELECT nombre,apellido_paterno,apellido_materno,fecha_nacimiento FROM ejemplo_tabla
+WHERE id_registro = :id");
+$datos->execute([":id" => $_GET["id"]]);
+$row  =$datos->fetch(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -93,8 +96,13 @@ include "../funciones/dates.php";
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="javascript:void(0)">Nombre del módulo</a>
                             </li>
-                            <li class="breadcrumb-item active">Listado</li>
+                            <li class="breadcrumb-item active">Nombre del apartado</li>
                         </ol>
+                    </div>
+                    <div class="">
+                        <button title="Usuarios conectados" data-toggle="tooltip"
+                            class="right-side-toggle waves-effect btn-success btn btn-circle btn-sm pull-right ml-2"><i
+                                class="fa fa-user"></i></button>
                     </div>
                 </div>
                 <!-- ============================================================== -->
@@ -106,39 +114,55 @@ include "../funciones/dates.php";
                 <div class="row">
                     <div class="col-12">
                         <div class="card card-outline-info">
-                            <div class="card-header ">
-                                <h4 class="tex-title text-white"><i class="fa fa-gift"></i> Listado de registros</h4>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="table-responsive">
-                                            <table id="tabla_listado"
-                                                class="table table-hover table-bordered table-striped color-table info-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th class="text-center">#</th>
-                                                        <th class="text-center">Nombre</th>
-                                                        <th class="text-center">Fecha de nacimiento</th>
-                                                        <th class="text-center">Estado</th>
-                                                        <th class="text-center">Editar</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                </tbody>
-                                                <tfoot>
-                                                </tfoot>
-                                            </table>
+                            <form action="actualizar.php" type="POST">
+                                <div class="card-header ">
+                                    <h4 class="tex-title text-white"><i class="fa fa-gift"></i> Nombre del apartado</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4 form-group">
+                                        <input type="hidden" name="id" value="<?php echo $_GET['id'];?>">
+                                            <label for="campo" class="control-label"><b><strong>Nombre:
+                                                    </strong></b></label>
+                                            <input type="text" required name="nombre" value="<?php echo $row['nombre'];?>" id="campo" class="form-control">
+                                        </div>
+                                        <div class="col-md-4 form-group">
+                                            <label for="campo2" class="control-label"><b><strong>Apellido paterno:
+                                                    </strong></b></label>
+                                            <input type="text" required name="ap_paterno" value="<?php echo $row['apellido_materno'];?>" id="campo2" class="form-control">
+                                        </div>
+                                        <div class="col-md-4 form-group">
+                                            <label for="campo3" class="control-label"><b><strong>apellido materno:
+                                                    </strong></b></label>
+                                            <input type="text" required name="ap_materno" value="<?php echo $row['apellido_materno'];?>" id="campo3" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                    <div class="col-md-4 form-grup">
+                                            <label for="fecha" class="control-label"><b><strong>Fecha de
+                                                        nacimiento:</strong></b> </label>
+                                            <input type="text" name="fecha_nacimiento" fechas id="fecha"
+                                                class="form-control" required value="<?php echo $row['fecha_nacimiento'];?>">
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="card-footer">
-                                <div style="float:right;">
-                                    <a href="alta.php" class="btn btn-default"><i class="fa fa-plus text-success"></i>
-                                        Agregar registro</a>
+                                <div class="card-footer">
+                                    <div style="">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div style="float:right;">
+                                                    <a href="index.php" class="btn btn-default"><i
+                                                            class="fa fa-times text-danger"></i>
+                                                        Cancelar</a>
+                                                    <button class="btn btn-default" type="submit"><i
+                                                            class="fa fa-save text-success"></i> Actualizar</button>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -149,6 +173,9 @@ include "../funciones/dates.php";
                 <!-- Right sidebar -->
                 <!-- ============================================================== -->
                 <!-- .right-sidebar -->
+                <?php
+                include "../template/right-sidebar.php";
+                ?>
                 <!-- ============================================================== -->
                 <!-- End Right sidebar -->
                 <!-- ============================================================== -->
@@ -179,61 +206,32 @@ include "../funciones/dates.php";
     <?php
     include "../template/footer-js.php";
     ?>
-
     <script>
-    function listar_registros() {
-        if ($.fn.dataTable.isDataTable('#tabla_listado')) {
-            $('#tabla_listado').DataTable().destroy();
-        } else {
-
-        }
-        var table = $('#tabla_listado').DataTable({
-            "ajax": 'data.php',
-            "language": {
-                "url": "../assets/plugins/datatables/media/js/Spanish.json"
-            },
-            "columns": [{
-                    className: "text-center"
-                },
-                {
-                    className: "text-center"
-                },
-                {
-                    className: "text-center"
-                },
-                {
-                    className: "text-center"
-                },
-                {
-                    className: "text-center"
-                }
-            ]
-        });
-        $("#tabla_listado").removeClass("dataTable");
-        $(table.table().header()).addClass('th-header');
-    }
-    $(document).ready(function() {
-        listar_registros();
+    $("[fechas]").datepicker({
+        autoclose: true,
+        todayHighlight: true,
+        format: 'yyyy-mm-dd',
+        language:'es'
     });
-
-    function estado(id, estado) {
+    $("form").submit(function(e) {
         $.ajax({
-            url: "estado.php",
+            url: "actualizar.php",
             type: "POST",
             dataType: "json",
-            data: {
-                'id': id,
-                'estado': estado
-            }
+            data: $(this).serialize()
         }).done(function(exito) {
-            if(exito["resultado"] == "exito"){
-                alertify.success(exito["mensaje"]);
-                listar_registros();
+            if (exito["resultado"] == "exito") {
+                alertify.notify(exito["mensaje"], "success", 2, function() {
+                    window.location = "index.php";
+                });
+            } else if (exito["resultado"] == "error") {
+                alertify.notify(exito["mensaje"], "error", 2, null);
             }
-        }).fail(function(error) {
-            alert(error);
-        })
-    }
+
+        }).fail(function(error) {})
+        e.preventDefault();
+        return false;
+    });
     </script>
 </body>
 

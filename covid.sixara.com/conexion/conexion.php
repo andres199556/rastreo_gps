@@ -1,6 +1,6 @@
 <?php
 $servidor = 'localhost';
-$bd_name = 'erp.sixara.com';
+$bd_name = 'covid.sixara.com';
 $usuario = 'root';
 $password = 'skynet_andres633156';
 $cadena_conexion = 'mysql:dbname='.$bd_name.';host='.$servidor.'';

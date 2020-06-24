@@ -17,9 +17,6 @@
         <nav class="sidebar-nav">
             <ul id="sidebarnav">
                 <li class="nav-small-cap">Menú de navegación</li>
-                <li> <a class="waves-effect waves-dark" href="../mInicio/index.php" aria-expanded="false"><i
-                            class="fa fa-tachometer"></i><span class="hide-menu">Inicio</span></a>
-                </li>
                 <?php
                                         //busco los modulos
                                         $modulos_sidebar = $conexion->query("SELECT
@@ -33,9 +30,9 @@
                                     INNER JOIN modulos AS M ON PM.id_modulo = M.id_modulo AND M.activo = 1
                                     WHERE
                                         PM.id_usuario = $id_usuario_logueado
-                                    AND PM.permiso != 0 AND M.id_categoria_modulo = 6 AND M.activo = 1
+                                    AND PM.permiso != 0  AND M.activo = 1
                                     ORDER BY
-                                        M.nombre_modulo ASC");
+                                        M.id_modulo ASC");
                                         while($row_m = $modulos_sidebar->fetch(PDO::FETCH_NUM)){
                                             $carpeta = $row_m[2];
                                             $ruta = "../$carpeta/index.php";
